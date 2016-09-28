@@ -1,8 +1,9 @@
 <?php
-	//võtab ja kopeerib faili sisu
+	//vÃµtab ja kopeerib faili sisu
 	require("../../config.php");
+	require("functions.php"); //vÃµid ka configi panna functionsisse, vahet pole
 	
-	//var_dump - näitab kõike, mis muutuja sees
+	//var_dump - nÃ¤itab kÃµike, mis muutuja sees
 	//var_dump($_GET);
 	//echo "<br>";
 	//var_dump($_POST);
@@ -33,10 +34,10 @@
 	
 	if (isset ($_POST["firstName"]) ){
 		if (empty ($_POST["firstName"]) ){
-			$firstNameError = "See väli on kohustuslik!";		
+			$firstNameError = "See vÃ¤li on kohustuslik!";		
 		} else {
 			//The preg_match() function searches a string for pattern, returning true if the pattern exists, and false otherwise.
-			if (!preg_match("/^[a-zA-Z õäöüðþ-]*$/",$_POST["firstName"])) { 
+			if (!preg_match("/^[a-zA-Z ÃµÃ¤Ã¶Ã¼Å¡Å¾-]*$/",$_POST["firstName"])) { 
 				$firstNameError = "Pole nimi!"; 
 			}
 		}
@@ -44,9 +45,9 @@
 	
 	if (isset ($_POST["lastName"]) ){
 		if (empty ($_POST["lastName"]) ){
-			$lastNameError = "See väli on kohustuslik!";		
+			$lastNameError = "See vÃ¤li on kohustuslik!";		
 		} else {
-			if (!preg_match("/^[a-zA-Z õäöüðþ-]*$/",$_POST["lastName"])) { 
+			if (!preg_match("/^[a-zA-Z ÃµÃ¤Ã¶Ã¼Å¡Å¾-]*$/",$_POST["lastName"])) { 
 				$lastNameError = "Pole nimi!"; 
 			}
 		}
@@ -54,22 +55,22 @@
 	
 	//kas e-post oli olemas
 	if (isset ($_POST["signupEmail"]) ){ //kas keegi nuppu vajutas, kas signupEmail tekkis
-		if (empty ($_POST["signupEmail"]) ){ //oli email, kuid see oli tühi
-			//echo "email oli tühi";
-			$signupEmailError = "See väli on kohustuslik!";		
+		if (empty ($_POST["signupEmail"]) ){ //oli email, kuid see oli tÃ¼hi
+			//echo "email oli tÃ¼hi";
+			$signupEmailError = "See vÃ¤li on kohustuslik!";		
 		} else {
-			//email on õige, salvestan väärtuse muutujasse
+			//email on Ãµige, salvestan vÃ¤Ã¤rtuse muutujasse
 			$signupEmail = $_POST["signupEmail"];
 		}
 	}
 	
 	if (isset ($_POST["signupPassword"]) ){ 
 		if (empty ($_POST["signupPassword"]) ){ 
-			$signupPasswordError = "See väli on kohustuslik!";		
+			$signupPasswordError = "See vÃ¤li on kohustuslik!";		
 		} else {
-			//tean, et oli parool ja see ei olnud tühi
+			//tean, et oli parool ja see ei olnud tÃ¼hi
 			if (strlen($_POST["signupPassword"]) < 8){ //strlen- stringi pikkus
-				$signupPasswordError = "Parool peab olema vähemalt 8 tähemärki pikk!";
+				$signupPasswordError = "Parool peab olema vÃ¤hemalt 8 tÃ¤hemÃ¤rki pikk!";
 			}
 		}
 	}
@@ -94,7 +95,7 @@
 		}
 	}
 	
-	//Kus tean, et ühtegi viga ei olnud ja saan kasutaja andmed salvestada.
+	//Kus tean, et Ã¼htegi viga ei olnud ja saan kasutaja andmed salvestada.
 	if (isset ($_POST["signupPassword"])
 		&& isset($_POST["signupEmail"])
 		&& empty($signupEmailError) 
@@ -105,38 +106,29 @@
 		
 		$password = hash("sha512", $_POST["signupPassword"]); //hash(algoritm,parool)
 		echo "parool ".$_POST["signupPassword"]."<br>";
-		echo "räsi".$password."<br>";
+		echo "rÃ¤si".$password."<br>";
 		
 		//echo $serverPassword;
 		
-		$database = "if16_marikraav";
-		$mysqli = new mysqli($serverHost, $serverUsername, $serverPassword, $database);
+		signup($signupEmail, $password);
 		
-		//käsk
-		$stmt = $mysqli->prepare("INSERT INTO user_sample(email, password) VALUES(?,?)"); //stmt- statement, prepare'i sisse mysqli lause
-		//INSERT jms ei pea suurega olema, aga lihtsustab arusaamist, kus on sqli pool ja kus see, mis sina kirjutasid
-		echo $mysqli->error; //näitab kui viga andmebaasi sisestamisel, muidu ei näita midagi
-		
-		//asendan küsimärgii väärtustega
-		//iga muutuja kohta 1 täht, mis tüüpi muutuja on
-		//s-string (nt ka date ja boolean on string) (kõik muud arvud va 2 alumist)
-		//i-integer (kõik täisarvud)
-		//d-double/float (kõik komakohaga arvud)
-		$stmt->bind_param("ss", $signupEmail, $password); //password- räsi, bind_param asendab muutujaid
-		
-		if($stmt->execute()) { //if'iga vaatame, kas salvestamine andmebaasi õnnestus
-			echo "salvestamine õnnestus";
-		} else {
-			echo "ERROR".$stmt->error;
-		}
 	}
-
+	
+	//Kontrollin, et kasutaja tÃ¤itis vÃ¤lja ja vÃµib sisse logida 
+	if (isset ($_POST["loginEmail"]) && 
+		isset ($_POST["loginPassword"]) && 
+		!empty ($_POST["loginEmail"]) && 
+		!empty ($_POST["loginPassword"])
+		){
+			//login sisse
+			login($_POST["loginEmail"], $_POST["loginPassword"]);
+		}
 ?>
 
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Sisselogimise lehekülg</title>
+		<title>Sisselogimise lehekÃ¼lg</title>
 	</head>
 	<body>
 		<h1>Logi sisse</h1>	
@@ -166,7 +158,7 @@
 		
 			<label>E-Post</label>
 			<br>
-			<input name="signupEmail" type="email" value= "<?=$signupEmail;?>" > <?php echo $signupEmailError; ?> <!--jätab signupEmaili meelde väljale-->
+			<input name="signupEmail" type="email" value= "<?=$signupEmail;?>" > <?php echo $signupEmailError; ?> <!--jÃ¤tab signupEmaili meelde vÃ¤ljale-->
 			<br><br>
 			
 			<label>Parool</label>
@@ -175,7 +167,7 @@
 			<br><br>
 			
 			
-			<label>Sugu:</label> <!--Jätan vabatahtlikuks väljaks-->
+			<label>Sugu:</label> <!--JÃ¤tan vabatahtlikuks vÃ¤ljaks-->
 			<?php if($gender == "female") { ?>
 			<input type="radio" name="gender" value="female" checked>Naine
 			<?php } else { ?>
@@ -189,13 +181,13 @@
 			<?php } ?>
 			<br><br>
 			
-			<label>Telefoni number</label> <!--Jätan vabatahtlikuks väljaks-->
+			<label>Telefoni number</label> <!--JÃ¤tan vabatahtlikuks vÃ¤ljaks-->
 			<br>
 			<input name="phoneNumber" type="text"> <?php echo $phoneNumberError; ?>
 			<br><br>
 			
 			<input type="submit" value = "Loo kasutaja">
 		</form>
-		 <!--Mvp ideeks on üldine foorum, kuhu saab postitada erinevaid teemasid ning kommenteerida olemasolevaid. Vastates teiste kasutajate teemadele saab koguda punkte ning neid kasutada oma teemadele "high priority" märkimisel või toodete/autasude lunastamisel. "High priority" eest saab oma teema tõsta teiste seast esile/ettepoole ning sellele motiveerib rohkem vastama, kuna võimalus on teenida rohkem punkte. Väga originaalset ideed hetkel ei ole, aga ehk tuleb teostamise käigus ning võib-olla idee ka muutub natukene.-->
+		 <!--Mvp ideeks on Ã¼ldine foorum, kuhu saab postitada erinevaid teemasid ning kommenteerida olemasolevaid. Vastates teiste kasutajate teemadele saab koguda punkte ning neid kasutada oma teemadele "high priority" mÃ¤rkimisel vÃµi toodete/autasude lunastamisel. "High priority" eest saab oma teema tÃµsta teiste seast esile/ettepoole ning sellele motiveerib rohkem vastama, kuna vÃµimalus on teenida rohkem punkte. VÃ¤ga originaalset ideed hetkel ei ole, aga ehk tuleb teostamise kÃ¤igus ning vÃµib-olla idee ka muutub natukene.-->
 	</body>
 </html>

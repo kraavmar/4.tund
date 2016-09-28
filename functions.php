@@ -1,7 +1,67 @@
 <?php
 	//functions.php
 	
-	function sum($x, $y){
+	//********************
+	//****** SIGNUP ******
+	//********************
+	//GLOBALSI SEES kõik GET, POST, COOKIE ja FILES andmed, näeme kõiki muutujaid, mis pole funktsioonides
+	//var_dump($GLOBALS);
+	//$GLOBALS is a PHP super global variable which is used to access global variables from anywhere in the PHP script (also from within functions or methods).
+	
+	$database = "if16_marikraav"; //database väljapoole nähtav
+	function signup ($email, $password){
+		//selle sees muutujad pole väljapoole nähtavad
+		
+		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $GLOBALS["database"]);
+		
+		$stmt = $mysqli->prepare("INSERT INTO user_sample(email, password) VALUES(?,?)");
+		echo $mysqli->error;
+		
+		$stmt->bind_param("ss", $email, $password); //$signupEmail emailiks lihtsalt
+		
+		if($stmt->execute()) {
+			echo "salvestamine õnnestus";
+		} else {
+			echo "ERROR".$stmt->error;
+		}
+	}
+	
+	function login ($email, $password){
+		
+		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $GLOBALS["database"]);
+		
+		$stmt = $mysqli->prepare("
+			SELECT id, email, password, created
+			FROM user_sample
+			WHERE email = ?
+		");
+		echo $mysqli->error;
+		
+		//asendan küsimärgi
+		$stmt->bind_param("s", $email); //s-string
+		
+		//määran tulpadele muutujad
+		$stmt->bind_result($id, $emailFromDb, $passwordFromDb, $created); //Db-database
+		$stmt->execute(); //päring läheb läbi executiga, isegi kui ühtegi vastust ei tule
+		
+		if($stmt->fetch()) { //fetch küsin rea andmeid
+			//oli rida
+			//võrdlen paroole 
+			$hash = hash("sha512", $password);
+			if($hash == $passwordFromDb){
+				echo "kasutaja ".$id." logis sisse";
+			} else {
+				echo "parool vale";
+			}
+		} else {
+			//ei olnud
+			echo "sellise emailiga ".$email." kasutajat ei olnud.";
+		}
+	}
+	
+	
+	
+	/*function sum($x, $y){
 		return $x + $y;
 	}
 	
@@ -10,4 +70,10 @@
 	//võid hoida meeles ka muutujas $answer = sum(10,15);
 	//echo $answer;
 	
+	//arvude liitmine +, stringide liitmine .
+	function hello ($firstName, $lastName) {
+		return "Tere tulemast ".$firstName." ".$lastName."!";
+	}
+	
+	echo hello("Mariann", "Kraav");*/
 ?>
