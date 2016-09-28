@@ -1,6 +1,9 @@
 <?php
 	//functions.php
 	
+	//alustan sessiooni, et saaks kasutada $_SESSION muutujaid
+	session_start(); //sessioon töötab, isegi kui kasutaja pole veel sisse logind
+	
 	//********************
 	//****** SIGNUP ******
 	//********************
@@ -28,6 +31,7 @@
 	
 	function login ($email, $password){
 		
+		$error = "";
 		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $GLOBALS["database"]);
 		
 		$stmt = $mysqli->prepare("
@@ -50,13 +54,22 @@
 			$hash = hash("sha512", $password);
 			if($hash == $passwordFromDb){
 				echo "kasutaja ".$id." logis sisse";
+				
+				$_SESSION["userId"] = $id;
+				$_SESSION["email"] = $emailFromDb;
+				
+				//suunaks uuele lehele
+				header("Location: data.php");
+				
 			} else {
-				echo "parool vale";
+				$error = "parool vale";
 			}
 		} else {
 			//ei olnud
-			echo "sellise emailiga ".$email." kasutajat ei olnud.";
+			$error = "sellise emailiga ".$email." kasutajat ei olnud.";
 		}
+		
+		return $error;
 	}
 	
 	

@@ -114,6 +114,7 @@
 		
 	}
 	
+	$notice = "";
 	//Kontrollin, et kasutaja täitis välja ja võib sisse logida 
 	if (isset ($_POST["loginEmail"]) && 
 		isset ($_POST["loginPassword"]) && 
@@ -121,7 +122,7 @@
 		!empty ($_POST["loginPassword"])
 		){
 			//login sisse
-			login($_POST["loginEmail"], $_POST["loginPassword"]);
+			$notice= login($_POST["loginEmail"], $_POST["loginPassword"]); //functions error kandus üle notice muutujasse login funktsiooniga
 		}
 ?>
 
@@ -134,6 +135,7 @@
 		<h1>Logi sisse</h1>	
 		
 		<form method="POST">
+			<p style="color:red;"><?=$notice;?></p>
 			<input name="loginEmail" type="email" placeholder="E-post"> <?php echo $loginEmailError; ?>
 			<br><br>
 			
