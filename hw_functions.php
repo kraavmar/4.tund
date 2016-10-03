@@ -12,15 +12,15 @@
 	//$GLOBALS is a PHP super global variable which is used to access global variables from anywhere in the PHP script (also from within functions or methods).
 	
 	$database = "if16_marikraav"; //database väljapoole nähtav
-	function signup ($firstName, $lastName, $email, $password){
+	function signup ($firstName, $lastName, $email, $password, $gender, $phoneNumber){
 		//selle sees muutujad pole väljapoole nähtavad
 		
 		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $GLOBALS["database"]);
 		
-		$stmt = $mysqli->prepare("INSERT INTO user_sample(firstName, lastName, email, password) VALUES(?,?)");
+		$stmt = $mysqli->prepare("INSERT INTO user_sample(firstname, lastname, email, password, gender, phonenumber) VALUES(?,?,?,?,?,?)");
 		echo $mysqli->error;
 		
-		$stmt->bind_param("ssss", $firstName, $lastName, $email, $password); //$signupEmail emailiks lihtsalt
+		$stmt->bind_param("ssssss", $firstName, $lastName, $email, $password, $gender, $phoneNumber); //$signupEmail emailiks lihtsalt
 		
 		if($stmt->execute()) {
 			echo "salvestamine õnnestus";
@@ -35,7 +35,7 @@
 		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $GLOBALS["database"]);
 		
 		$stmt = $mysqli->prepare("
-			SELECT id, email, password, created
+			SELECT id, firstname, email, password, created
 			FROM user_sample
 			WHERE email = ?
 		");
@@ -45,7 +45,7 @@
 		$stmt->bind_param("s", $email); //s-string
 		
 		//määran tulpadele muutujad
-		$stmt->bind_result($id, $emailFromDb, $passwordFromDb, $created); //Db-database
+		$stmt->bind_result($id, $firstNameFromDb, $emailFromDb, $passwordFromDb, $created); //Db-database
 		$stmt->execute(); //päring läheb läbi executiga, isegi kui ühtegi vastust ei tule
 		
 		if($stmt->fetch()) { //fetch küsin rea andmeid
@@ -57,9 +57,10 @@
 				
 				$_SESSION["userId"] = $id;
 				$_SESSION["email"] = $emailFromDb;
+				$_SESSION["firstName"] = $firstNameFromDb;
 				
 				//suunaks uuele lehele
-				header("Location: data.php");
+				header("Location: hw_data.php");
 				
 			} else {
 				$error = "parool vale";

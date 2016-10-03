@@ -22,6 +22,7 @@
 	$loginEmail = "";
 	$signupEmail = "";
 	$gender = "";
+	$phoneNumber = "";
 	
 	if (isset ($_POST["loginEmail"]) ){
 		if (empty ($_POST["loginEmail"]) ){
@@ -44,6 +45,8 @@
 			//The preg_match() function searches a string for pattern, returning true if the pattern exists, and false otherwise.
 			if (!preg_match("/^[a-zA-Z õäöüšž-]*$/",$_POST["firstName"])) { 
 				$firstNameError = "Pole nimi!"; 
+			} else {
+				$firstName = $_POST["firstName"];
 			}
 		}
 	}
@@ -54,6 +57,8 @@
 		} else {
 			if (!preg_match("/^[a-zA-Z õäöüšž-]*$/",$_POST["lastName"])) { 
 				$lastNameError = "Pole nimi!"; 
+			} else {
+				$lastName = $_POST["lastName"]; 
 			}
 		}
 	}
@@ -94,6 +99,7 @@
 		} else {
 			if (ctype_digit($_POST["phoneNumber"])){ //ctype_digit- checks if all of the characters in the Provided string, text, are numerical.
 				$phoneNumberError = "";		
+				$phoneNumber = $_POST["phoneNumber"];
 			} else {
 				$phoneNumberError = "Ainult numbrid on lubatud!";
 			}
@@ -105,10 +111,13 @@
 		&& isset ($_POST["lastName"])
 		&& isset($_POST["signupEmail"])
 		&& isset ($_POST["signupPassword"])
+		&& isset ($_POST["gender"])
+		&& isset ($_POST["phoneNumber"])
 		&& empty($firstNameError) 
 		&& empty($lastNameError) 
 		&& empty($signupEmailError) 
-		&& empty($signupPasswordError) ){
+		&& empty($signupPasswordError)
+		&& empty($phoneNumberError) ){
 			
 		echo "Salvestan...<br>";
 		echo "eesnimi ".$firstName."<br>";
@@ -119,9 +128,12 @@
 		echo "parool ".$_POST["signupPassword"]."<br>";
 		echo "räsi".$password."<br>";
 		
+		echo "sugu ".$gender."<br>";
+		echo "telefoni number ".$phoneNumber."<br>";
+		
 		//echo $serverPassword;
 		
-		signup($firstName, $lastName, $signupEmail, $password);
+		signup($firstName, $lastName, $signupEmail, $password, $gender, $phoneNumber);
 		
 	}
 	
